@@ -1,0 +1,52 @@
+name: thw-estab
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    environment:
+      NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-localhost}
+      NGINX_CLIENT_MAX_BODY_SIZE: ${NGINX_CLIENT_MAX_BODY_SIZE:-32m}
+      PHP_MAX_EXECUTION_TIME: ${PHP_MAX_EXECUTION_TIME:-60}
+    volumes:
+      - ./www:/var/www/html
+      - ./docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    depends_on:
+      - php
+
+  php:
+    build:
+      context: ./docker/php
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      ESTAB_DB_HOST: ${ESTAB_DB_HOST:-mariadb}
+      WWW_UID: ${WWW_UID:-501}
+      WWW_GID: ${WWW_GID:-20}
+    volumes:
+      - ./www:/var/www/html
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  mariadb:
+    image: mariadb:11.4
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${MARIADB_PORT:-3306}:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+volumes:
+  mariadb_data:

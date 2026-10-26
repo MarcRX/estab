@@ -1,0 +1,8 @@
+AuthUserFile .htpasswd
+AuthType Basic
+AuthName "Adminbereich"
+require valid-user
+AuthBasicProvider file
+<Files "">
+</Files>
+Satisfy all

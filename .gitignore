@@ -1,0 +1,14 @@
+.env
+.env.local
+.env.*.local
+docker/certs/*
+!docker/certs/.gitkeep
+src/vendor/
+*.log
+.DS_Store
+*.zip
+*~
+*.webarchive
+www/kats/4fdata/*
+!www/kats/4fdata/.gitkeep
+bos-nachrichtenvordruck-main/
