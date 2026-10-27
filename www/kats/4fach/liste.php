@@ -733,6 +733,10 @@ class Listen extends kategorien
           echo "<b>!File:" . __FILE__ . "  Line:" . __LINE__ . "</b> fkt:get_list - sw:listenart - Stab Lesen/global nach db_access <br>";
         }
 
+        if (($_SESSION["vStab_funktion"] ?? "") !== "A/W" && ($_SESSION["vStab_kuerzel"] ?? "") !== "") {
+          $dbaccess->ensure_user_table($tblusername, $tblfktname);
+        }
+
         $query_select_arg = $conf_4f_tbl["nachrichten"] . ".`00_lfd`, " .
           $conf_4f_tbl["nachrichten"] . ".`09_vorrangstufe`, " .
           $conf_4f_tbl["nachrichten"] . ".`04_richtung`, " .

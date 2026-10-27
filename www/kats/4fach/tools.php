@@ -350,13 +350,22 @@ include ("../4fcfg/para.inc.php");
 
     $gesamtmeldungen = $result[0];
     $fkttblname  = $conf_4f_tbl ["usrtblprefix"]."_fkt_".strtolower ($_SESSION["vStab_funktion"]);
+    $erl_table = $fkttblname."_erl";
+    $erl_sql = str_replace(array("\\", "'"), array("\\\\", "\\'"), $erl_table);
+    $erl_vorhanden = $dbaccess->query_table_wert(
+      "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = '".$erl_sql."'"
+    );
 
-    $query = "SELECT count(*) FROM `".$nachrichten."`, `".$fkttblname."_erl` WHERE "
-           . $empfaenger
-           . " AND ( `".$nachrichten."`.`00_lfd` = `".$fkttblname."_erl`.`nachnum` );";
+    if (empty($erl_vorhanden[0])) {
+      $erledigtmeldungen = 0;
+    } else {
+      $query = "SELECT count(*) FROM `".$nachrichten."`, `".$erl_table."` WHERE "
+             . $empfaenger
+             . " AND ( `".$nachrichten."`.`00_lfd` = `".$erl_table."`.`nachnum` );";
 
-    $result = $dbaccess->query_table_wert ($query);
-    $erledigtmeldungen = $result[0];
+      $result = $dbaccess->query_table_wert ($query);
+      $erledigtmeldungen = $result[0];
+    }
 
     if (debug) {
       echo "<br><br>\n------------------------Info Block Start------------------------------<br>\n";

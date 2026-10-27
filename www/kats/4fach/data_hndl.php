@@ -1275,6 +1275,10 @@ function list_of_readed_msg()
   $tblusername   = $conf_4f_tbl["usrtblprefix"] .
     strtolower($_SESSION["vStab_funktion"]) . "_" .
     strtolower($_SESSION["vStab_kuerzel"]);
+  $fkttblname = $conf_4f_tbl["usrtblprefix"] . "_fkt_" . strtolower($_SESSION["vStab_funktion"]);
+  if (($_SESSION["vStab_funktion"] ?? "") !== "A/W" && ($_SESSION["vStab_kuerzel"] ?? "") !== "") {
+    $dbaccess->ensure_user_table($tblusername, $fkttblname);
+  }
 
   $query = "select " . $conf_4f_tbl["nachrichten"] . ".00_lfd from " .
     $conf_4f_tbl["nachrichten"] . ", " . $tblusername . "_read where " .
@@ -1319,6 +1323,10 @@ function list_of_done_msg()
   );
 
   $fkttblname  = $conf_4f_tbl["usrtblprefix"] . "_fkt_" . strtolower($_SESSION["vStab_funktion"]);
+  $tblusername = $conf_4f_tbl["usrtblprefix"] . strtolower($_SESSION["vStab_funktion"]) . "_" . strtolower($_SESSION["vStab_kuerzel"]);
+  if (($_SESSION["vStab_funktion"] ?? "") !== "A/W" && ($_SESSION["vStab_kuerzel"] ?? "") !== "") {
+    $dbaccess->ensure_user_table($tblusername, $fkttblname);
+  }
 
   $query = "select " . $conf_4f_tbl["nachrichten"] . ".00_lfd from " .
     $conf_4f_tbl["nachrichten"] . ", " . $fkttblname . "_erl where " .

@@ -166,7 +166,7 @@ public  function create_user_table ($tablename, $fkttblname) {
     }
 
 
-     $query = "ALTER TABLE `".$tablename."_read` ADD INDEX ( `nachnum` ) ";
+     $query = "ALTER TABLE `".$tablename."_read` ADD INDEX IF NOT EXISTS `nachnum` ( `nachnum` ) ";
      $result = mysqli_query($db, $query);
     if (!$result) {
        die("<b>!DB:". __FILE__ ."  Line:". __LINE__."95 db_oper Ungueltige Abfrage: " . mysqli_error($db));
@@ -188,7 +188,7 @@ public  function create_user_table ($tablename, $fkttblname) {
     }
 
 
-     $query = "ALTER TABLE `".$fkttblname."_erl` ADD INDEX ( `nachnum` ) ";
+     $query = "ALTER TABLE `".$fkttblname."_erl` ADD INDEX IF NOT EXISTS `nachnum` ( `nachnum` ) ";
      $result = mysqli_query($db, $query);
     if (!$result) {
        die("<b>!DB:". __FILE__ ."  Line:". __LINE__." db_oper Ungueltige Abfrage: " . mysqli_error($db));
@@ -240,6 +240,19 @@ public  function create_user_table ($tablename, $fkttblname) {
     $result = mysqli_query($db, $query);
     if (!$result) {
        die("<b>!DB:". __FILE__ ."  Line:". __LINE__."  Ungueltige Abfrage: " . mysqli_error($db));
+    }
+  }
+
+  public function ensure_user_table ($tablename, $fkttblname) {
+    foreach (array($fkttblname."_erl", $tablename."_read") as $table) {
+      $table_sql = str_replace(array("\\", "'"), array("\\\\", "\\'"), $table);
+      $vorhanden = $this->query_table_wert(
+        "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = '".$table_sql."'"
+      );
+      if (empty($vorhanden[0])) {
+        $this->create_user_table($tablename, $fkttblname);
+        return;
+      }
     }
   }
 
